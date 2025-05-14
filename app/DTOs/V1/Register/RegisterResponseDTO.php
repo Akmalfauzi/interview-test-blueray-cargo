@@ -1,10 +1,10 @@
 <?php
 
-namespace App\DTOs\Auth\API\V1\Login;
+namespace App\DTOs\V1\Register;
 
 use App\Models\User;
 
-class LoginResponseDTO
+class RegisterResponseDTO
 {
     public function __construct(
         public readonly string $message,

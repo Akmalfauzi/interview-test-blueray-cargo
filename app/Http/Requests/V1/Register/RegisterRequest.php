@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Auth\API\V1;
+namespace App\Http\Requests\V1\Register;
 
-use App\DTOs\Auth\API\V1\Register\RegisterRequestDTO;
+use App\DTOs\V1\Register\RegisterRequestDTO;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest

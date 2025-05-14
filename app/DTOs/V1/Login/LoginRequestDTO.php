@@ -1,11 +1,10 @@
 <?php
 
-namespace App\DTOs\Auth\API\V1\Register;
+namespace App\DTOs\V1\Login;
 
-class RegisterRequestDTO
+class LoginRequestDTO
 {
     public function __construct(
-        public readonly string $name,
         public readonly string $email,
         public readonly string $password,
     ) {}
@@ -18,7 +17,6 @@ class RegisterRequestDTO
     public function toArray(): array
     {
         return [
-            'name' => $this->name,
             'email' => $this->email,
             'password' => $this->password,
         ];

@@ -74,22 +74,19 @@ class RoleController extends Controller
         // Validasi request
         $validated = $request->validate([
             'name' => 'required|string|unique:roles,name|max:255',
-            'description' => 'nullable|string|max:1000',
-            // Tambahkan validasi untuk permissions jika ada
         ]);
 
         try {
+
+            $validated['guard_name'] = 'web';
+
             $role = Role::create($validated);
-            // Jika Anda menggunakan Spatie Permissions, Anda bisa assign permissions di sini
-            // if ($request->has('permissions')) {
-            //    $role->syncPermissions($request->input('permissions'));
-            // }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Role created successfully',
                 'data' => $role
-            ], 201); // HTTP 201 Created
+            ], 201);
 
         } catch (\Exception $e) {
             Log::error('Error creating role via API: ' . $e->getMessage());
@@ -160,10 +157,6 @@ class RoleController extends Controller
             }
 
             $role->update($validated);
-            // Jika Anda menggunakan Spatie Permissions, Anda bisa sync permissions di sini
-            // if ($request->has('permissions')) {
-            //    $role->syncPermissions($request->input('permissions'));
-            // }
 
             return response()->json([
                 'success' => true,
@@ -197,12 +190,12 @@ class RoleController extends Controller
                 ], 404);
             }
 
-            // Pertimbangkan validasi sebelum menghapus, misalnya jika role masih digunakan
-            if ($role->users()->count() > 0) {
+            // Cek apakah role masih digunakan oleh user manapun
+            if ($role->users()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot delete role. It is still assigned to users.'
-                ], 400); // Bad Request
+                    'message' => 'Role is still assigned to one or more users and cannot be deleted'
+                ], 400);
             }
 
             $role->delete();

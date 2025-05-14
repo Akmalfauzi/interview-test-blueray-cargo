@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\V1\Login;
 
-use App\DTOs\Auth\Login\LoginRequestDTO;
+use App\DTOs\V1\Login\LoginRequestDTO;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
@@ -43,13 +43,10 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Convert request to DTO
+     * Convert the request to a DTO.
      */
     public function toDTO(): LoginRequestDTO
     {
-        return new LoginRequestDTO(
-            email: $this->input('email'),
-            password: $this->input('password'),
-        );
+        return new LoginRequestDTO($this->input('email'), $this->input('password'));
     }
 } 

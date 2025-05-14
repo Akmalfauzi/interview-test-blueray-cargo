@@ -1,4 +1,3 @@
-{{-- resources/views/layouts/backend/v1/components/modal_role_form.blade.php --}}
 <div class="modal fade" id="roleFormModal" tabindex="-1" aria-labelledby="roleFormModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -7,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="roleForm">
-                @csrf {{-- Meskipun ini client-side, CSRF token bisa berguna jika form disubmit ke route web dulu --}}
+                @csrf
                 <input type="hidden" id="roleId" name="role_id">
                 <div class="modal-body">
                     {{-- Alert untuk menampilkan error --}}
@@ -22,19 +21,26 @@
                         <input type="text" class="form-control" id="roleName" name="name" required>
                     </div>
 
-                    {{-- Tempat untuk Permissions (jika Anda menggunakan Spatie/Permission atau sejenisnya) --}}
-                    {{-- <div class="mb-3">
-                        <label class="form-label">Permissions</label>
-                        <div id="permissionsContainer" class="row">
-                            <p class="text-muted">Memuat permissions...</p>
-                        </div>
-                    </div> --}}
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="saveRoleButton">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-                        Simpan
+                {{-- Modal Footer --}}
+                <div class="modal-footer border-top pt-3">
+                    <button type="button" 
+                            class="btn btn-light px-4" 
+                            data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="btn btn-primary px-4" 
+                            id="saveRoleButton">
+                        <span class="spinner-border spinner-border-sm d-none" 
+                              role="status" 
+                              aria-hidden="true">
+                        </span>
+                        <span class="button-text">
+                            <i class="fas fa-save me-2"></i>
+                            Simpan
+                        </span>
                     </button>
                 </div>
             </form>

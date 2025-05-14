@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\Auth\API\V1;
+namespace App\Services\V1\API\Auth;
 
-use App\DTOs\Auth\Login\LoginRequestDTO;
-use App\DTOs\Auth\Login\LoginResponseDTO;
-use App\Services\Auth\TokenService;
+use App\DTOs\V1\Login\LoginRequestDTO;
+use App\DTOs\V1\Login\LoginResponseDTO;
+use App\Services\V1\API\Auth\TokenService;
 use Illuminate\Support\Facades\Auth;
 
 class LoginService

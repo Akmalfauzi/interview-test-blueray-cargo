@@ -16,7 +16,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box text-bg-primary">
                 <div class="inner">
-                    <h3>150</h3>
+                    <h3 id="newOrders">-</h3>
                     <p>New Orders</p>
                 </div>
                 <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +34,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box text-bg-success">
                 <div class="inner">
-                    <h3>53<sup class="fs-5">%</sup></h3>
+                    <h3 id="bounceRate">-<sup class="fs-5">%</sup></h3>
                     <p>Bounce Rate</p>
                 </div>
                 <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +52,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box text-bg-warning">
                 <div class="inner">
-                    <h3>44</h3>
+                    <h3 id="userRegistrations">-</h3>
                     <p>User Registrations</p>
                 </div>
                 <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +70,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box text-bg-danger">
                 <div class="inner">
-                    <h3>65</h3>
+                    <h3 id="uniqueVisitors">-</h3>
                     <p>Unique Visitors</p>
                 </div>
                 <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
@@ -89,4 +89,72 @@
             </div>
         </div>
     </div>
+
+    {{-- Loading Spinner --}}
+    <div id="dashboardLoading" class="text-center py-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    {{-- Error Alert --}}
+    <div id="dashboardError" class="alert alert-danger mt-3" style="display: none;">
+        <ul id="dashboardErrors" class="mb-0"></ul>
+    </div>
 @endsection
+
+@push('scripts')
+    {{-- jQuery --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
+        crossorigin="anonymous"></script>
+
+    {{-- Dashboard Script --}}
+    <script>
+        $(document).ready(function() {
+            const $loading = $('#dashboardLoading');
+            const $error = $('#dashboardError');
+            const $errors = $('#dashboardErrors');
+
+            function updateDashboardStats() {
+                $loading.show();
+                $error.hide();
+                $errors.empty();
+
+                $.ajax({
+                    url: '{{ route('api.v1.dashboard') }}',
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Update stats
+                        $('#newOrders').text(response.new_orders || 0);
+                        $('#bounceRate').text(response.bounce_rate || 0);
+                        $('#userRegistrations').text(response?.data?.user_registrations || 0);
+                        $('#uniqueVisitors').text(response.unique_visitors || 0);
+                    },
+                    error: function(xhr) {
+                        const response = xhr.responseJSON;
+                        if (response && response.message) {
+                            $errors.append('<li>' + response.message + '</li>');
+                        } else {
+                            $errors.append('<li>Failed to load dashboard data</li>');
+                        }
+                        $error.show();
+                    },
+                    complete: function() {
+                        $loading.hide();
+                    }
+                });
+            }
+
+            // Load initial data
+            updateDashboardStats();
+
+            // Refresh data every 5 minutes
+            setInterval(updateDashboardStats, 5 * 60 * 1000);
+        });
+    </script>
+@endpush

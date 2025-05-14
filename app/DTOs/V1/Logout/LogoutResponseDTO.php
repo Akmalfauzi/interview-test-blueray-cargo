@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs\Auth\API\V1\Logout;
+namespace App\DTOs\V1\Logout;
 
 class LogoutResponseDTO
 {

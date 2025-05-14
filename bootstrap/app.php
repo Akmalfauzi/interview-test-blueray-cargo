@@ -18,27 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'ensure_accepts_json' => \App\Http\Middleware\EnsureAcceptsJson::class,
         ]);
-
-        $middleware->alias([
-            'ensure_frontend_requests_are_stateful' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-        ]);
-
-
-    /**
-     * eturn $request->expectsJson()
-                    ? response()->json(['message' => $exception->getMessage()], 401)
-                    : redirect()->guest($exception->redirectTo() ?? route('login'));
-     */
-
-
-
     })
     ->withExceptions(function (Exceptions $exceptions) {
     //
-        $exceptions->render(function (AuthenticationException $e, Request $request) {
-            $response['statusCode'] = 403;
-            $response['message'] = 'Unauthorized';
-            return response()->json(['error' => true, 'content' => 'YOUR MESSAGE']);
-        });
     })->create();

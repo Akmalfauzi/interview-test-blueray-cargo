@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\Auth\API\V1;
+namespace App\Services\V1\API\Auth;
 
-use App\DTOs\Auth\API\V1\Register\RegisterRequestDTO;
-use App\DTOs\Auth\API\V1\Register\RegisterResponseDTO;
+use App\DTOs\V1\Register\RegisterRequestDTO;
+use App\DTOs\V1\Register\RegisterResponseDTO;
 use App\Models\User;
-use App\Services\Auth\TokenService;
+use App\Services\V1\API\Auth\TokenService;
 use Illuminate\Support\Facades\Hash;
 
 class RegisterService

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\API\V1;
+namespace App\Http\Controllers\V1\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\API\V1\RegisterRequest;
+use App\Http\Requests\V1\Register\RegisterRequest;
 use App\Http\Responses\API\V1\ApiResponse;
-use App\Services\Auth\API\V1\RegisterService;
+use App\Services\V1\API\Auth\RegisterService;
 use Illuminate\Http\JsonResponse;
 
 class RegisterController extends Controller
