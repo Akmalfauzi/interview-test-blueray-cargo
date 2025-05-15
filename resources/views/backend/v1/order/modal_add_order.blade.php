@@ -55,10 +55,12 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="courier_id" class="required">Kurir</label>
-                                        <select class="form-control" id="courier_id" name="courier_id" required>
+                                        <select id="courier_id" name="courier_id" class="form-control" required>
                                             <option value="">Pilih Kurir</option>
-                                            <!-- Options will be populated via JavaScript -->
                                         </select>
+                                        <input type="hidden" id="courier_code" name="courier_code">
+                                        <input type="hidden" id="courier_name" name="courier_name">
+                                        <input type="hidden" id="service_type" name="service_type">
                                     </div>
                                 </div>
                                 <div class="col-md-6">

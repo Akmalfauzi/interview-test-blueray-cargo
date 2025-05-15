@@ -94,6 +94,10 @@ Route::prefix('api/v1')->as('api.v1.')->group(function () {
 
         // Orders
         Route::prefix('orders')->as('orders.')->group(function () {
+
+            // Map Location
+            Route::get('/map-location', [APIOrderController::class, 'getMapLocation'])->name('map-location');
+
             // Couriers
             Route::get('/couriers', [APIOrderController::class, 'getCouriers'])->name('couriers');
 

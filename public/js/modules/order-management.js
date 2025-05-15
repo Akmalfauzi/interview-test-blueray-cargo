@@ -3,8 +3,8 @@ export default class OrderManagement {
         this.initializeElements();
         this.attachEventListeners();
         this.loadOrders();
-        this.initAddOrderModal();
         this.loadCouriers();
+        this.initAddOrderModal();
     }
 
     static initializeElements() {
@@ -121,17 +121,26 @@ export default class OrderManagement {
                     <tbody>
                         ${data.data.map(order => `
                             <tr>
-                                <td>${order.order_number}</td>
+                                <td>${order.raw_biteship_payload.id}</td>
                                 <td>${this.formatDate(order.created_at)}</td>
-                                <td>${order.sender_name}</td>
-                                <td>${order.receiver_name}</td>
-                                <td>${order.courier_name}</td>
+                                <td>
+                                    <div>${order.shipper_name}</div>
+                                    <small class="text-muted">${order.shipper_phone}</small>
+                                </td>
+                                <td>
+                                    <div>${order.receiver_name}</div>
+                                    <small class="text-muted">${order.receiver_phone}</small>
+                                </td>
+                                <td>
+                                    <div>${order.raw_biteship_payload.courier.company.toUpperCase()}</div>
+                                    <small class="text-muted">${order.raw_biteship_payload.courier.type}</small>
+                                </td>
                                 <td>
                                     <span class="order-status status-${order.status.toLowerCase()}">
                                         ${this.formatStatus(order.status)}
                                     </span>
                                 </td>
-                                <td>${this.formatCurrency(order.total_amount)}</td>
+                                <td>${this.formatCurrency(order.raw_biteship_payload.price)}</td>
                                 <td>
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-info btn-sm" 
@@ -139,7 +148,7 @@ export default class OrderManagement {
                                             <i class="bi bi-eye"></i>
                                         </button>
                                         <button type="button" class="btn btn-danger btn-sm" 
-                                                onclick="OrderManagement.confirmDelete('${order.id}', '${order.order_number}')">
+                                                onclick="OrderManagement.confirmDelete('${order.id}', '${order.raw_biteship_payload.id}')">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -243,20 +252,24 @@ export default class OrderManagement {
             const order = data.data;
 
             // Populate modal fields
-            document.getElementById('detailOrderNumber').textContent = order.order_number;
+            document.getElementById('detailOrderNumber').textContent = order.raw_biteship_payload.id;
             document.getElementById('detailOrderStatus').textContent = this.formatStatus(order.status);
             document.getElementById('detailOrderStatus').className = `order-status status-${order.status.toLowerCase()}`;
             document.getElementById('detailOrderDate').textContent = this.formatDate(order.created_at);
-            document.getElementById('detailOrderTotal').textContent = this.formatCurrency(order.total_amount);
+            document.getElementById('detailOrderTotal').textContent = this.formatCurrency(order.raw_biteship_payload.price);
 
-            document.getElementById('detailCourier').textContent = order.courier_name;
-            document.getElementById('detailTrackingNumber').textContent = order.tracking_number || '-';
-            document.getElementById('detailEstimatedDelivery').textContent = order.estimated_delivery || '-';
+            // Courier Information
+            document.getElementById('detailCourier').textContent = order.raw_biteship_payload.courier.company.toUpperCase();
+            document.getElementById('detailTrackingNumber').textContent = order.raw_biteship_payload.courier.waybill_id;
+            document.getElementById('detailTrackingLink').href = order.raw_biteship_payload.courier.link;
+            document.getElementById('detailEstimatedDelivery').textContent = this.formatDate(order.raw_biteship_payload.delivery.datetime);
 
-            document.getElementById('detailSenderName').textContent = order.sender_name;
-            document.getElementById('detailSenderPhone').textContent = order.sender_phone;
-            document.getElementById('detailSenderAddress').textContent = order.sender_address;
+            // Sender Information
+            document.getElementById('detailSenderName').textContent = order.shipper_name;
+            document.getElementById('detailSenderPhone').textContent = order.shipper_phone;
+            document.getElementById('detailSenderAddress').textContent = order.shipper_address;
 
+            // Receiver Information
             document.getElementById('detailReceiverName').textContent = order.receiver_name;
             document.getElementById('detailReceiverPhone').textContent = order.receiver_phone;
             document.getElementById('detailReceiverAddress').textContent = order.receiver_address;
@@ -269,7 +282,7 @@ export default class OrderManagement {
                     <td>${item.quantity}</td>
                     <td>${item.weight} kg</td>
                     <td>${this.formatCurrency(item.price)}</td>
-                    <td>${this.formatCurrency(item.subtotal)}</td>
+                    <td>${this.formatCurrency(item.price * item.quantity)}</td>
                 </tr>
             `).join('');
 
@@ -359,12 +372,13 @@ export default class OrderManagement {
 
     static formatStatus(status) {
         const statusMap = {
-            'PENDING': 'Menunggu',
-            'PROCESSING': 'Diproses',
-            'COMPLETED': 'Selesai',
-            'CANCELLED': 'Dibatalkan'
+            'confirmed': 'Dikonfirmasi',
+            'pending': 'Menunggu',
+            'processing': 'Diproses',
+            'completed': 'Selesai',
+            'cancelled': 'Dibatalkan'
         };
-        return statusMap[status] || status;
+        return statusMap[status.toLowerCase()] || status;
     }
 
     static initAddOrderModal() {
@@ -380,6 +394,110 @@ export default class OrderManagement {
         
         // Initialize event listeners for the form
         this.initEventListeners();
+        this.initAddressSearch();
+    }
+
+    static initAddressSearch() {
+        // Initialize address search for sender
+        this.initAddressSearchField('sender_address', 'sender_address_results');
+        // Initialize address search for receiver
+        this.initAddressSearchField('receiver_address', 'receiver_address_results');
+    }
+
+    static initAddressSearchField(inputId, resultsId) {
+        const input = document.getElementById(inputId);
+        const resultsContainer = document.createElement('div');
+        resultsContainer.id = resultsId;
+        resultsContainer.className = 'address-results mt-2';
+        resultsContainer.style.display = 'none';
+        input.parentNode.appendChild(resultsContainer);
+
+        // Create hidden inputs for all address data
+        const hiddenInputs = {
+            id: document.createElement('input'),
+            name: document.createElement('input'),
+            postal_code: document.createElement('input'),
+        };
+
+        // Configure hidden inputs
+        Object.entries(hiddenInputs).forEach(([key, element]) => {
+            element.type = 'hidden';
+            element.id = `${inputId}_${key}`;
+            element.name = `${inputId}_${key}`;
+            input.parentNode.appendChild(element);
+        });
+
+        let searchTimeout;
+        input.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            
+            if (query.length < 3) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                this.searchAddress(query, resultsContainer, input, hiddenInputs);
+            }, 500);
+        });
+
+        // Close results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        });
+    }
+
+    static async searchAddress(query, resultsContainer, input, hiddenInputs) {
+        try {
+            const response = await fetch(`/api/v1/orders/map-location?query=${encodeURIComponent(query)}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.message || 'Gagal mencari alamat');
+            }
+
+            if (data.data.length === 0) {
+                resultsContainer.innerHTML = '<div class="p-2 text-muted">Tidak ada hasil ditemukan</div>';
+                resultsContainer.style.display = 'block';
+                return;
+            }
+
+            resultsContainer.innerHTML = data.data.map(location => `
+                <div class="address-item p-2 border-bottom" style="cursor: pointer;" 
+                     data-id="${location.id}"
+                     data-name="${location.name}"
+                     data-postal_code="${location.postal_code}">
+                    <div class="fw-medium">${location.name}</div>
+                </div>
+            `).join('');
+
+            // Add click event to each result
+            resultsContainer.querySelectorAll('.address-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    // Update main input with formatted address
+                    input.value = item.dataset.name;
+                    
+                    // Update all hidden inputs
+                    Object.keys(hiddenInputs).forEach(key => {
+                        const value = item.dataset[key.replace(/_/g, '')] || '';
+                        hiddenInputs[key].value = value;
+                    });
+
+                    resultsContainer.style.display = 'none';
+                });
+            });
+
+            resultsContainer.style.display = 'block';
+        } catch (error) {
+            console.error('Error searching address:', error);
+            resultsContainer.innerHTML = '<div class="p-2 text-danger">Gagal mencari alamat</div>';
+            resultsContainer.style.display = 'block';
+        }
     }
 
     static async loadCouriers() {
@@ -398,9 +516,28 @@ export default class OrderManagement {
                 // Add new options
                 data.data.forEach(courier => {
                     const option = document.createElement('option');
-                    option.value = courier.id;
+                    option.value = courier.courier_code;
                     option.textContent = `${courier.courier_name} (${courier.description}) (${courier.service_type} - ${courier.shipment_duration_range} ${courier.shipment_duration_unit})`;
+                    option.dataset.courierCode = courier.courier_code;
+                    option.dataset.courierName = courier.courier_name;
+                    option.dataset.courierServiceType = courier.service_type;
                     courierSelect.appendChild(option);
+                });
+
+                // Add change event listener to populate form fields
+                courierSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption.value) {
+                        // Populate form fields with data attributes
+                        document.getElementById('courier_code').value = selectedOption.dataset.courierCode;
+                        document.getElementById('courier_name').value = selectedOption.dataset.courierName;
+                        document.getElementById('service_type').value = selectedOption.dataset.courierServiceType;
+                    } else {
+                        // Clear form fields if no courier selected
+                        document.getElementById('courier_code').value = '';
+                        document.getElementById('courier_name').value = '';
+                        document.getElementById('service_type').value = '';
+                    }
                 });
             }
         } catch (error) {
@@ -432,13 +569,33 @@ export default class OrderManagement {
             input.addEventListener('input', () => this.calculateSubtotal(itemRow));
         });
 
+        // Add subtotal display
+        const subtotalDiv = document.createElement('div');
+        subtotalDiv.className = 'col-md-12 mt-2';
+        subtotalDiv.innerHTML = `
+            <div class="d-flex justify-content-end">
+                <span class="text-muted">Subtotal: </span>
+                <span class="item-subtotal ms-2 fw-bold">Rp 0</span>
+            </div>
+        `;
+        itemRow.querySelector('.row').appendChild(subtotalDiv);
+
         this.itemsContainer.appendChild(itemRow);
         this.itemIndex++;
     }
 
     static removeItemRow(row) {
         if (this.itemsContainer.children.length > 1) {
-            row.remove();
+            // Add fade out animation
+            row.style.transition = 'opacity 0.3s ease-out';
+            row.style.opacity = '0';
+            
+            // Remove after animation
+            setTimeout(() => {
+                row.remove();
+                // Recalculate all subtotals
+                this.recalculateAllSubtotals();
+            }, 300);
         } else {
             window.Toast.fire({
                 icon: 'warning',
@@ -452,8 +609,17 @@ export default class OrderManagement {
         const price = parseFloat(row.querySelector('.item-price').value) || 0;
         const subtotal = quantity * price;
         
-        // You can add a subtotal display if needed
-        // row.querySelector('.item-subtotal').textContent = subtotal.toFixed(2);
+        // Update subtotal display
+        const subtotalElement = row.querySelector('.item-subtotal');
+        if (subtotalElement) {
+            subtotalElement.textContent = this.formatCurrency(subtotal);
+        }
+    }
+
+    static recalculateAllSubtotals() {
+        this.itemsContainer.querySelectorAll('.item-row').forEach(row => {
+            this.calculateSubtotal(row);
+        });
     }
 
     static initEventListeners() {
@@ -467,6 +633,24 @@ export default class OrderManagement {
             
             try {
                 const formData = new FormData(this.form);
+                
+                // Convert FormData to JSON object
+                const jsonData = {};
+                formData.forEach((value, key) => {
+                    // Handle nested arrays (items)
+                    if (key.startsWith('items[')) {
+                        const matches = key.match(/items\[(\d+)\]\[(\w+)\]/);
+                        if (matches) {
+                            const [, index, field] = matches;
+                            if (!jsonData.items) jsonData.items = [];
+                            if (!jsonData.items[index]) jsonData.items[index] = {};
+                            jsonData.items[index][field] = value;
+                        }
+                    } else {
+                        jsonData[key] = value;
+                    }
+                });
+
                 const response = await fetch(this.form.action, {
                     method: 'POST',
                     headers: {
@@ -474,7 +658,7 @@ export default class OrderManagement {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(Object.fromEntries(formData))
+                    body: JSON.stringify(jsonData)
                 });
 
                 const data = await response.json();

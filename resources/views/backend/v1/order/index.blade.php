@@ -152,6 +152,30 @@
         color: #dc3545;
         cursor: pointer;
     }
+    /* Address search styles */
+    .address-results {
+        position: absolute;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+    }
+    .address-item {
+        transition: background-color 0.2s;
+    }
+    .address-item:hover {
+        background-color: #f8f9fa;
+    }
+    .address-item:last-child {
+        border-bottom: none !important;
+    }
+    .form-group {
+        position: relative;
+    }
 </style>
 @endpush
 

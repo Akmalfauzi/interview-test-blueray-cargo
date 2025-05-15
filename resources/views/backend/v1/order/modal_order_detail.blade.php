@@ -7,94 +7,102 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
+                <div class="row mb-4">
                     <div class="col-md-6">
                         <h6 class="mb-3">Informasi Order</h6>
                         <table class="table table-sm">
                             <tr>
-                                <th style="width: 40%">Nomor Order</th>
+                                <td width="40%">No. Order</td>
                                 <td id="detailOrderNumber">-</td>
                             </tr>
                             <tr>
-                                <th>Status</th>
-                                <td><span id="detailOrderStatus" class="order-status">-</span></td>
+                                <td>Status</td>
+                                <td><span id="detailOrderStatus">-</span></td>
                             </tr>
                             <tr>
-                                <th>Tanggal Order</th>
+                                <td>Tanggal</td>
                                 <td id="detailOrderDate">-</td>
                             </tr>
                             <tr>
-                                <th>Total Biaya</th>
+                                <td>Total</td>
                                 <td id="detailOrderTotal">-</td>
                             </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="mb-3">Informasi Pengiriman</h6>
+                        <h6 class="mb-3">Informasi Kurir</h6>
                         <table class="table table-sm">
                             <tr>
-                                <th style="width: 40%">Kurir</th>
+                                <td width="40%">Kurir</td>
                                 <td id="detailCourier">-</td>
                             </tr>
                             <tr>
-                                <th>No. Resi</th>
+                                <td>No. Resi</td>
                                 <td id="detailTrackingNumber">-</td>
                             </tr>
                             <tr>
-                                <th>Estimasi</th>
+                                <td>Link Tracking</td>
+                                <td>
+                                    <a href="#" id="detailTrackingLink" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-box-arrow-up-right"></i> Lihat Tracking
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Estimasi Pengiriman</td>
                                 <td id="detailEstimatedDelivery">-</td>
                             </tr>
                         </table>
                     </div>
                 </div>
 
-                <div class="row mt-4">
+                <div class="row mb-4">
                     <div class="col-md-6">
-                        <h6 class="mb-3">Pengirim</h6>
+                        <h6 class="mb-3">Informasi Pengirim</h6>
                         <table class="table table-sm">
                             <tr>
-                                <th style="width: 40%">Nama</th>
+                                <td width="40%">Nama</td>
                                 <td id="detailSenderName">-</td>
                             </tr>
                             <tr>
-                                <th>Telepon</th>
+                                <td>Telepon</td>
                                 <td id="detailSenderPhone">-</td>
                             </tr>
                             <tr>
-                                <th>Alamat</th>
+                                <td>Alamat</td>
                                 <td id="detailSenderAddress">-</td>
                             </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="mb-3">Penerima</h6>
+                        <h6 class="mb-3">Informasi Penerima</h6>
                         <table class="table table-sm">
                             <tr>
-                                <th style="width: 40%">Nama</th>
+                                <td width="40%">Nama</td>
                                 <td id="detailReceiverName">-</td>
                             </tr>
                             <tr>
-                                <th>Telepon</th>
+                                <td>Telepon</td>
                                 <td id="detailReceiverPhone">-</td>
                             </tr>
                             <tr>
-                                <th>Alamat</th>
+                                <td>Alamat</td>
                                 <td id="detailReceiverAddress">-</td>
                             </tr>
                         </table>
                     </div>
                 </div>
 
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <h6 class="mb-3">Detail Barang</h6>
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h6 class="mb-3">Daftar Item</h6>
                         <div class="table-responsive">
                             <table class="table table-sm" id="detailItemsTable">
                                 <thead>
                                     <tr>
-                                        <th>Nama Barang</th>
-                                        <th>Qty</th>
-                                        <th>Berat (kg)</th>
+                                        <th>Nama Item</th>
+                                        <th>Jumlah</th>
+                                        <th>Berat</th>
                                         <th>Harga</th>
                                         <th>Subtotal</th>
                                     </tr>
@@ -107,10 +115,10 @@
                     </div>
                 </div>
 
-                <div class="row mt-4">
-                    <div class="col-12">
+                <div class="row">
+                    <div class="col-md-12">
                         <h6 class="mb-3">Catatan</h6>
-                        <p id="detailNotes" class="text-muted">-</p>
+                        <p id="detailNotes" class="mb-0">-</p>
                     </div>
                 </div>
             </div>

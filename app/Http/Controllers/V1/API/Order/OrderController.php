@@ -8,6 +8,7 @@ use App\Services\V1\API\Order\OrderService;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -19,6 +20,15 @@ class OrderController extends Controller
     {
         $couriers = $this->orderService->getCouriers();
         return ApiResponse::success($couriers, 'Daftar kurir berhasil diambil');
+    }
+
+    public function getMapLocation(Request $request)
+    {
+        $data['input'] = $request->input('query');
+        $data['type'] = $request->type ?? 'single';
+
+        $mapLocation = $this->orderService->getMapLocation($data);
+        return ApiResponse::success($mapLocation, 'Data lokasi berhasil diambil');
     }
 
     public function index(Request $request)
@@ -39,7 +49,6 @@ class OrderController extends Controller
 
             // Query builder untuk orders
             $query = Order::query()
-                ->with(['items', 'courier']) // Eager load relationships
                 ->orderBy('created_at', 'desc');
 
             // Implementasi pencarian
@@ -72,6 +81,31 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'sender_name' => 'required|string',
+            'sender_phone' => 'required|string',
+            'sender_address' => 'required|string',
+            'receiver_name' => 'required|string',
+            'receiver_phone' => 'required|string',
+            'receiver_address' => 'required|string',
+            'courier_code' => 'required',
+            'courier_name' => 'required',
+            'service_type' => 'required',
+            'items' => 'required|array',
+            'items.*.name' => 'required|string',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.weight' => 'required|numeric|min:0.1',
+            'items.*.price' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::error(
+                message: 'Validasi gagal',
+                errors: $validator->errors(),
+                statusCode: 422
+            );
+        }
+
         try {
             $order = $this->orderService->createOrder($request->all());
             return ApiResponse::success($order, 'Order berhasil dibuat');
@@ -94,8 +128,7 @@ class OrderController extends Controller
     public function show($id)
     {
         try {
-            $order = Order::with(['items', 'courier'])
-                ->find($id);
+            $order = Order::find($id);
 
             if (!$order) {
                 return ApiResponse::notFound('Order tidak ditemukan');
@@ -132,16 +165,13 @@ class OrderController extends Controller
                 return ApiResponse::notFound('Order tidak ditemukan');
             }
 
-            // Cek apakah order bisa dihapus (misalnya hanya order dengan status tertentu)
-            if (!in_array($order->status, ['PENDING', 'CANCELLED'])) {
+            if (!in_array($order->status, ['confirmed'])) {
                 return ApiResponse::error(
                     message: 'Order tidak dapat dihapus karena statusnya ' . $order->status,
                     statusCode: 400
                 );
             }
 
-            // Hapus order dan relasinya
-            $order->items()->delete(); // Hapus items terlebih dahulu
             $order->delete();
 
             return ApiResponse::success(

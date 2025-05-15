@@ -19,38 +19,20 @@ return new class extends Migration
             // Informasi Pengirim
             $table->string('shipper_name');
             $table->string('shipper_phone');
-            $table->text('shipper_address_line1');
-            $table->string('shipper_address_line2')->nullable(); // Alamat baris 2 opsional
-            $table->string('shipper_city');
-            $table->string('shipper_postal_code');
-            $table->string('shipper_country_code', 2)->default('ID'); // ISO 3166-1 alpha-2 country code, default Indonesia
+            $table->text('shipper_address');
 
             // Informasi Penerima
-            $table->string('consignee_name');
-            $table->string('consignee_phone');
-            $table->text('consignee_address_line1');
-            $table->string('consignee_address_line2')->nullable(); // Alamat baris 2 opsional
-            $table->string('consignee_city');
-            $table->string('consignee_postal_code');
-            $table->string('consignee_country_code', 2)->default('ID');
+            $table->string('receiver_name');
+            $table->string('receiver_phone');
+            $table->text('receiver_address');
 
-            // Detail Barang
-            $table->text('item_description');
-            $table->decimal('item_weight_kg', 8, 2); // Berat dalam KG, misal 10.50 KG
-            $table->decimal('item_value', 15, 2); // Harga barang
-            $table->integer('item_quantity')->default(1); // Jumlah barang (jika diperlukan, deskripsi hanya menyebutkan satu set detail)
+            $table->longText('items');
 
             // Informasi dari Biteship
-            $table->string('biteship_order_id')->nullable()->unique(); // ID order dari Biteship, unik jika ada
-            $table->string('biteship_tracking_id')->nullable()->index(); // ID tracking dari Biteship, bisa diindeks
-            $table->string('courier_name')->nullable(); // Nama kurir yang digunakan
-            $table->string('courier_service_name')->nullable(); // Layanan kurir yang digunakan
-            $table->decimal('shipping_cost', 15, 2)->nullable(); // Biaya pengiriman
+            $table->longText('raw_biteship_payload')->nullable();
 
-            // Status Order internal aplikasi
-            // Contoh: 'pending', 'processing', 'shipped', 'delivered', 'cancelled', 'failed'
             $table->string('status')->default('pending');
-            $table->text('notes')->nullable(); // Catatan tambahan untuk order
+            $table->text('notes')->nullable();
 
             $table->timestamps();
         });

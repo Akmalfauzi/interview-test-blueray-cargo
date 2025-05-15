@@ -17,19 +17,16 @@ class Order extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'order_number',
-        'sender_name',
-        'sender_phone',
-        'sender_address',
+        'user_id',
+        'shipper_name',
+        'shipper_phone',
+        'shipper_address',
         'receiver_name',
         'receiver_phone',
         'receiver_address',
-        'courier_id',
-        'courier_name',
-        'tracking_number',
-        'estimated_delivery',
+        'items',
+        'raw_biteship_payload',
         'status',
-        'total_amount',
         'notes',
     ];
 
@@ -39,23 +36,7 @@ class Order extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'total_amount' => 'decimal:2',
-        'estimated_delivery' => 'datetime',
+        'items' => 'array',
+        'raw_biteship_payload' => 'array',
     ];
-
-    /**
-     * Get the items for the order.
-     */
-    public function items(): HasMany
-    {
-        return $this->hasMany(OrderItem::class);
-    }
-
-    /**
-     * Get the courier that owns the order.
-     */
-    public function courier(): BelongsTo
-    {
-        return $this->belongsTo(Courier::class);
-    }
 } 
