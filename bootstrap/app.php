@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'ensure_accepts_json' => \App\Http\Middleware\EnsureAcceptsJson::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'api/v1/webhook/biteship',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
     //
