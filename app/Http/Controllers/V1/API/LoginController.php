@@ -17,7 +17,7 @@ class LoginController extends Controller
     /**
      * Handle user login request.
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function processLogin(LoginRequest $request): JsonResponse
     {
         $response = $this->loginService->login($request->toDTO());
 

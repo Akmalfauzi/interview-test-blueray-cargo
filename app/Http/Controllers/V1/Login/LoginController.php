@@ -15,22 +15,8 @@ class LoginController extends Controller
         private readonly LoginService $loginService
     ) {}
 
-
     public function login()
     {
         return view('backend.v1.login.index');
-    }
-
-    public function processLogin(LoginRequest $request)
-    {
-        $login = $this->loginService->login($request->toDTO());
-        if (!$login) {
-            return ApiResponse::unauthorized('Invalid login credentials');
-        }
-
-        return ApiResponse::success(
-            data: $login->toArray(),
-            message: $login->message
-        );
     }
 }

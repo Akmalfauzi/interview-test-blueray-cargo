@@ -17,7 +17,7 @@ class RegisterController extends Controller
     /**
      * Handle user registration request.
      */
-    public function register(RegisterRequest $request): JsonResponse
+    public function processRegister(RegisterRequest $request): JsonResponse
     {
         $response = $this->registerService->register($request->toDTO());
 

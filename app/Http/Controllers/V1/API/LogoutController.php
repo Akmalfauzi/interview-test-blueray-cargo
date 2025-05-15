@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\V1\API\Auth;
+namespace App\Http\Controllers\V1\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Responses\API\V1\ApiResponse;
-use App\Services\Auth\API\V1\LogoutService;
+use App\Services\V1\API\Auth\LogoutService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,7 @@ class LogoutController extends Controller
     /**
      * Handle user logout request.
      */
-    public function logout(Request $request): JsonResponse
+    public function processLogout(Request $request): JsonResponse
     {
         $response = $this->logoutService->logout($request->user());
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\Auth\API\V1;
+namespace App\Services\V1\API\Auth;
 
-use App\DTOs\Auth\API\V1\Logout\LogoutResponseDTO;
-use App\Services\Auth\TokenService;
+use App\DTOs\V1\Logout\LogoutResponseDTO;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Auth;
 
 class LogoutService
 {
@@ -21,6 +21,8 @@ class LogoutService
     public function logout(Authenticatable $user): LogoutResponseDTO
     {
         $this->tokenService->revokeToken($user);
+
+        Auth::guard('web')->logout();
 
         return new LogoutResponseDTO(
             message: 'Successfully logged out'

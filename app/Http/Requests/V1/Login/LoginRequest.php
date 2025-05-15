@@ -47,6 +47,10 @@ class LoginRequest extends FormRequest
      */
     public function toDTO(): LoginRequestDTO
     {
-        return new LoginRequestDTO($this->input('email'), $this->input('password'));
+        return new LoginRequestDTO(
+            email: $this->input('email'),
+            password: $this->input('password'),
+            remember: $this->input('remember')
+        );
     }
 } 

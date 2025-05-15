@@ -23,7 +23,10 @@
                             <div class="input-group-text"><span class="bi bi-envelope"></span></div>
                         </div>
                         <div class="input-group mb-3">
-                            <input type="password" class="form-control" name="password" placeholder="Password" required />
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Password" required />
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <span class="bi bi-eye"></span>
+                            </button>
                             <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
                         </div>
                         <div class="row">
@@ -45,7 +48,7 @@
                     </form>
                     <p class="mb-1"><a href="{{ route('forgot-password') }}">I forgot my password</a></p>
                     <p class="mb-0">
-                        <a href="{{ route('register') }}" class="text-center">Register a new membership</a>
+                        <a href="{{ route('register') }}" class="text-center">Register</a>
                     </p>
                 </div>
             </div>
@@ -62,6 +65,7 @@
             integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
         </script>
         <script src="{{ get_template_url('js/adminlte.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             $(document).ready(function() {
                 const $loginForm = $('#loginForm');
@@ -69,6 +73,25 @@
                 const $loginSpinner = $loginButton.find('.spinner-border');
                 const $loginAlertContainer = $('#loginAlertContainer');
                 const $loginErrors = $('#loginErrors');
+                const $password = $('#password');
+                const $togglePassword = $('#togglePassword');
+
+                // Toggle password visibility
+                $togglePassword.on('click', function() {
+                    const type = $password.attr('type') === 'password' ? 'text' : 'password';
+                    $password.attr('type', type);
+                    // Toggle eye icon
+                    $(this).find('span').toggleClass('bi-eye bi-eye-slash');
+                });
+
+                // Initialize Toast
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
 
                 $loginForm.on('submit', function(e) {
                     e.preventDefault();
@@ -90,11 +113,32 @@
                         },
                         credentials: 'same-origin',
                         success: function(response) {
-                            console.log(response);
-                            if (response.redirect) {
-                                window.location.href = response.redirect;
+                            if (response.success) {
+                                // Show success message with SweetAlert2
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Login Berhasil!',
+                                    text: 'Selamat datang kembali. Anda akan diarahkan ke dashboard.',
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true,
+                                    willClose: () => {
+                                        // Redirect after delay
+                                        if (response.redirect) {
+                                            window.location.href = response.redirect;
+                                        } else {
+                                            window.location.href = '/dashboard';
+                                        }
+                                    }
+                                });
                             } else {
-                                window.location.href = '/dashboard';
+                                // Show error message
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Login Gagal',
+                                    text: response.message || 'Terjadi kesalahan saat login',
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         },
                         error: function(xhr) {
@@ -107,14 +151,24 @@
                                         $loginErrors.append('<li>' + error + '</li>');
                                     });
                                 });
+                                $loginAlertContainer.show();
                             } else if (xhr.status === 429) {
-                                // Handle rate limit error
-                                $loginErrors.append('<li>Terlalu banyak percobaan login. Silakan coba lagi dalam 1 menit.</li>');
+                                // Handle rate limit error with SweetAlert2
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Terlalu Banyak Percobaan',
+                                    text: 'Silakan coba lagi dalam 1 menit.',
+                                    confirmButtonText: 'OK'
+                                });
                             } else {
-                                // Handle other errors
-                                $loginErrors.append('<li>' + (response.message || 'An error occurred during login') + '</li>');
+                                // Handle other errors with SweetAlert2
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Login Gagal',
+                                    text: response.message || 'Terjadi kesalahan saat login',
+                                    confirmButtonText: 'OK'
+                                });
                             }
-                            $loginAlertContainer.show();
                         },
                         complete: function() {
                             // Reset button state

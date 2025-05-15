@@ -1,9 +1,18 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
+// API
 use App\Http\Controllers\V1\API\Dashboard\DashboardController as APIDashboardController;
+use App\Http\Controllers\V1\API\LogoutController as APILogoutController;
+use App\Http\Controllers\V1\API\LoginController as APILoginController;
+use App\Http\Controllers\V1\API\RegisterController as APIRegisterController;
 use App\Http\Controllers\V1\API\Role\RoleController as APIRoleController;
 use App\Http\Controllers\V1\API\RolePermission\RolePermissionController;
 use App\Http\Controllers\V1\API\User\UserController as APIUserController;
+use App\Http\Controllers\V1\API\Order\OrderController as APIOrderController;
+
+// Backend
 use App\Http\Controllers\V1\Dashboard\DashboardController;
 use App\Http\Controllers\V1\ForgotPassword\ForgotPasswordController;
 use App\Http\Controllers\V1\Login\LoginController;
@@ -13,25 +22,20 @@ use App\Http\Controllers\V1\ResetPassword\ResetPasswordController;
 use App\Http\Controllers\V1\Role\RoleController;
 use App\Http\Controllers\V1\Tracking\TrackingController;
 use App\Http\Controllers\V1\Tracking\TrackingHistoryController;
-use App\Http\Controllers\V1\User\UserController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\V1\User\UserController;    
 
 // Home
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Guest
 Route::middleware('guest')->group(function () {
     // Login
     Route::get('/login', [LoginController::class, 'login'])->name('login');
-});
-
-// Register
-Route::get('/register', [RegisterController::class, 'register'])->name('register');
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Register
+    Route::get('/register', [RegisterController::class, 'register'])->name('register');
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -43,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('reset-password');
 
     // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Order
     Route::prefix('order')->as('order.')->group(function () {
@@ -68,15 +73,37 @@ Route::middleware('auth:sanctum')->group(function () {
 
 //-- API --//
 Route::prefix('api/v1')->as('api.v1.')->group(function () {
+
+    // Webhook
+    Route::post('/webhook/biteship', [APIOrderController::class, 'webhook'])
+        ->name('webhook');
+
     // Public routes
-    Route::post('/login', [LoginController::class, 'login'])->name('login');
-    Route::post('/register', [RegisterController::class, 'register'])->name('register');
+    Route::post('/login', [APILoginController::class, 'processLogin'])->name('login');
+    Route::post('/register', [APIRegisterController::class, 'processRegister'])->name('register');
 
     // Protected routes
     Route::middleware(['auth:sanctum', 'ensure_accepts_json'])->group(function () {
+
+        // Logout
+        Route::post('/logout', [APILogoutController::class, 'processLogout'])->name('logout');
+
         // Dashboard data
         Route::get('/dashboard', [APIDashboardController::class, 'getDashboardData'])
             ->name('dashboard');
+
+        // Orders
+        Route::prefix('orders')->as('orders.')->group(function () {
+            // Couriers
+            Route::get('/couriers', [APIOrderController::class, 'getCouriers'])->name('couriers');
+
+            // Orders
+            Route::get('/', [APIOrderController::class, 'index'])->name('index');
+            Route::post('/', [APIOrderController::class, 'store'])->name('store');
+            Route::get('/{order}', [APIOrderController::class, 'show'])->name('show');
+            Route::put('/{order}', [APIOrderController::class, 'update'])->name('update');
+            Route::delete('/{order}', [APIOrderController::class, 'destroy'])->name('destroy');
+        });
 
         // Roles
         Route::prefix('roles')->as('roles.')->group(function () {

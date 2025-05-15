@@ -21,7 +21,9 @@ class LoginService
      */
     public function login(LoginRequestDTO $loginDTO): ?LoginResponseDTO
     {
-        if (!Auth::attempt($loginDTO->toArray())) {
+        $rememberMe = (bool) $loginDTO->remember;
+
+        if (!Auth::attempt($loginDTO->toArray(), $rememberMe)) {
             return null;
         }
 
