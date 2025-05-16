@@ -49,11 +49,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('reset-password');
 
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:view_dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Order
     Route::prefix('order')->as('order.')->group(function () {
-        Route::get('/', [OrderController::class, 'index'])->name('index')->middleware('permission:view_orders');
+        Route::get('/', [OrderController::class, 'index'])->name('index');
     });
 
     // Tracking
@@ -64,18 +64,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User
     Route::prefix('user')->as('user.')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('index')->middleware('permission:view_users');
+        Route::get('/', [UserController::class, 'index'])->name('index');
     });
 
     // Role
     Route::prefix('roles')->as('roles.')->group(function () {
-        Route::get('/', [RoleController::class, 'index'])->name('index')->middleware('permission:view_roles');
+        Route::get('/', [RoleController::class, 'index'])->name('index');
     });
 
     // Profile
     Route::prefix('profile')->as('profile.')->group(function () {
-        Route::get('/', [ProfileController::class, 'edit'])->name('edit')->middleware('permission:edit_profile');
-        Route::post('/', [ProfileController::class, 'update'])->name('update')->middleware('permission:edit_profile');
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::post('/', [ProfileController::class, 'update'])->name('update');
     });
 });
 
