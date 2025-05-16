@@ -196,10 +196,9 @@ class OrderController extends Controller
     {
         try {
             Log::info('Webhook received', ['request' => $request->all()]);
-            Log::info('Order ID', ['order_id' => $request->order_id]);
 
             // Find the order
-            $order = Order::whereJsonContains('raw_biteship_payload->id', $request->order_id)->first();
+            $order = Order::whereRaw("(raw_biteship_payload->>'id')::text = ?", [$request->order_id])->first();
             
             if (!$order) {
                 Log::error('Order not found', ['order_id' => $request->id]);
