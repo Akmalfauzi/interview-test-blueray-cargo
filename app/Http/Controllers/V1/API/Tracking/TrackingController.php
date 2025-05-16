@@ -60,6 +60,11 @@ class TrackingController extends Controller
                 });
             }
 
+            // cek apakah user adalah admin
+            if (!auth()->user()->hasRole('admin')) {
+                $query->where('user_id', auth()->user()->id);
+            }
+
             // Ambil data dengan pagination
             $trackings = $query->paginate($perPage, ['*'], 'page', $page);
 
