@@ -114,27 +114,23 @@ class BiteshipService
     public function createOrder(array $data): JsonResponse
     {
         try {
+            $orderData = [
+                'origin_contact_name' => $data['sender_name'],
+                'origin_contact_phone' => $data['sender_phone'],
+                'origin_address' => $data['sender_address'],
+                'origin_area_id' => $data['sender_address_id'] ?? null,
 
-            $orderData['origin_contact_name'] = $data['sender_name'];
-            $orderData['origin_contact_phone'] = $data['sender_phone'];
-            $orderData['origin_address'] = $data['sender_address'];
-            $orderData['origin_area_id'] = $data['sender_address_id'];
+                'destination_contact_name' => $data['receiver_name'],
+                'destination_contact_phone' => $data['receiver_phone'],
+                'destination_address' => $data['receiver_address'],
+                'destination_area_id' => $data['receiver_address_id'] ?? null,
 
-            $orderData['destination_contact_name'] = $data['receiver_name'];
-            $orderData['destination_contact_phone'] = $data['receiver_phone'];
-            $orderData['destination_address'] = $data['receiver_address'];
-            $orderData['destination_area_id'] = $data['receiver_address_id'];
-
-            $orderData['courier_company'] = 'jne';
-            $orderData['courier_type'] = 'reg';
-            // $orderData['courier_company'] = $data['courier_name'];
-            // $orderData['courier_type'] = $data['service_type'];
-            
-            // $orderData['delivery_type'] = $data['delivery_type'];
-            $orderData['delivery_type'] = 'now';
-
-            $orderData['order_note'] = $data['notes'];
-            $orderData['items'] = $data['items'];
+                'courier_company' => 'jne',
+                'courier_type' => 'reg',
+                'delivery_type' => 'now',
+                'order_note' => $data['notes'] ?? '',
+                'items' => $data['items']
+            ];
 
             Log::info('Order Data', ['orderData' => $orderData]);
 

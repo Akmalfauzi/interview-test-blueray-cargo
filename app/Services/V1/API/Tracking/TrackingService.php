@@ -44,8 +44,14 @@ class TrackingService
     public function saveTracking(array $data)
     {
         try {
-            // get order by tracking id using PostgreSQL JSON syntax
-            $order = Order::whereRaw("(raw_biteship_payload::jsonb->'courier'->>'tracking_id') = ?", [$data['id']])->first();
+            // Get all orders and filter in PHP for SQLite compatibility
+            $orders = Order::all();
+            $order = $orders->first(function ($order) use ($data) {
+                $payload = is_array($order->raw_biteship_payload)
+                    ? $order->raw_biteship_payload
+                    : json_decode($order->raw_biteship_payload, true);
+                return isset($payload['courier']['tracking_id']) && $payload['courier']['tracking_id'] === $data['id'];
+            });
 
             if (!$order) {
                 throw new \Exception('Order not found');

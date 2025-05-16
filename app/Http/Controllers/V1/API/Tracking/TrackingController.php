@@ -54,9 +54,9 @@ class TrackingController extends Controller
             // Implementasi pencarian
             if ($search) {
                 $query->where(function ($q) use ($search) {
-                    $q->whereRaw("(raw_biteship_payload::jsonb->>'status') = ?", [$search])
-                        ->orWhereRaw("(raw_biteship_payload::jsonb->>'courier'->>'name') = ?", [$search])
-                        ->orWhereRaw("(raw_biteship_payload::jsonb->>'courier'->>'tracking_id') = ?", [$search]);
+                    $q->whereRaw("json_extract(raw_biteship_payload, '$.status') = ?", [$search])
+                        ->orWhereRaw("json_extract(raw_biteship_payload, '$.courier.name') = ?", [$search])
+                        ->orWhereRaw("json_extract(raw_biteship_payload, '$.courier.tracking_id') = ?", [$search]);
                 });
             }
 

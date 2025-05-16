@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Services\V1\API\ThirdParty\Biteship\BiteshipService;
+use Mockery;
 
 class OrderTest extends TestCase
 {
@@ -13,6 +15,7 @@ class OrderTest extends TestCase
 
     protected $user;
     protected $token;
+    protected $biteshipService;
 
     protected function setUp(): void
     {
@@ -20,6 +23,16 @@ class OrderTest extends TestCase
         
         $this->user = User::factory()->create();
         $this->token = $this->user->createToken('test-token')->plainTextToken;
+
+        // Mock BiteshipService
+        $this->biteshipService = Mockery::mock(BiteshipService::class);
+        $this->app->instance(BiteshipService::class, $this->biteshipService);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
     }
 
     public function test_user_can_create_order()
@@ -41,8 +54,29 @@ class OrderTest extends TestCase
                     'weight' => 1.0,
                     'price' => 100000
                 ]
+            ],
+            'notes' => 'Test notes'
+        ];
+
+        // Mock successful Biteship API response
+        $biteshipResponse = [
+            'success' => true,
+            'message' => 'Order berhasil dibuat di Biteship',
+            'data' => [
+                'id' => 'biteship-123',
+                'tracking_id' => 'TRK123',
+                'status' => 'confirmed'
             ]
         ];
+
+        $this->biteshipService
+            ->shouldReceive('createOrder')
+            ->once()
+            ->with(Mockery::on(function ($data) use ($orderData) {
+                return $data['sender_name'] === $orderData['sender_name'] &&
+                       $data['receiver_name'] === $orderData['receiver_name'];
+            }))
+            ->andReturn(response()->json($biteshipResponse));
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -68,11 +102,72 @@ class OrderTest extends TestCase
                 ]
             ]);
 
+        // Assert order was saved to database
         $this->assertDatabaseHas('orders', [
             'shipper_name' => $orderData['sender_name'],
             'shipper_phone' => $orderData['sender_phone'],
+            'shipper_address' => $orderData['sender_address'],
             'receiver_name' => $orderData['receiver_name'],
-            'receiver_phone' => $orderData['receiver_phone']
+            'receiver_phone' => $orderData['receiver_phone'],
+            'receiver_address' => $orderData['receiver_address'],
+            'user_id' => $this->user->id,
+            'status' => 'confirmed'
+        ]);
+
+        // Assert items were saved correctly
+        $order = Order::where('shipper_name', $orderData['sender_name'])->first();
+        $this->assertNotNull($order);
+        $this->assertEquals($orderData['items'], $order->items);
+        $this->assertEquals($orderData['notes'], $order->notes);
+    }
+
+    public function test_user_cannot_create_order_when_biteship_fails()
+    {
+        $orderData = [
+            'sender_name' => 'John Doe',
+            'sender_phone' => '081234567890',
+            'sender_address' => 'Jl. Test No. 123',
+            'receiver_name' => 'Jane Doe',
+            'receiver_phone' => '089876543210',
+            'receiver_address' => 'Jl. Test No. 456',
+            'courier_code' => 'jne',
+            'courier_name' => 'JNE',
+            'service_type' => 'REG',
+            'items' => [
+                [
+                    'name' => 'Test Item',
+                    'quantity' => 1,
+                    'weight' => 1.0,
+                    'price' => 100000
+                ]
+            ],
+            'notes' => 'Test notes'
+        ];
+
+        // Mock failed Biteship API response
+        $this->biteshipService
+            ->shouldReceive('createOrder')
+            ->once()
+            ->andReturn(response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat order di Biteship',
+                'errors' => ['Invalid address']
+            ], 400));
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+            'Accept' => 'application/json'
+        ])->postJson('/api/v1/orders', $orderData);
+
+        $response->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Gagal membuat order di Biteship'
+            ]);
+
+        // Assert order was not saved to database
+        $this->assertDatabaseMissing('orders', [
+            'shipper_name' => $orderData['sender_name']
         ]);
     }
 

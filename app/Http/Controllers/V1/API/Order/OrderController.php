@@ -114,8 +114,10 @@ class OrderController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
-            return ApiResponse::serverError(
-                message: 'Gagal membuat order: ' . $e->getMessage()
+            $statusCode = $e->getCode() ?: 500;
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                statusCode: $statusCode
             );
         }
     }

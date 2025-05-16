@@ -16,29 +16,42 @@ class OrderService
 
     public function createOrder(array $data)
     {
-        $response = $this->biteshipService->createOrder($data);
-        $responseData = json_decode($response->getContent(), true);
+        try {
+            $response = $this->biteshipService->createOrder($data);
+            $responseData = json_decode($response->getContent(), true);
 
-        if (!$responseData['success']) {
-            throw new \Exception($responseData['message']);
+            if (!$responseData['success']) {
+                Log::error('Failed to create order in Biteship', [
+                    'data' => $data,
+                    'response' => $responseData
+                ]);
+                throw new \Exception($responseData['message'] ?? 'Gagal membuat order di Biteship', 400);
+            }
+
+            // save to database
+            $order = Order::create([
+                'shipper_name' => $data['sender_name'],
+                'shipper_phone' => $data['sender_phone'],
+                'shipper_address' => $data['sender_address'],
+                'receiver_name' => $data['receiver_name'],
+                'receiver_phone' => $data['receiver_phone'],
+                'receiver_address' => $data['receiver_address'],
+                'user_id' => Auth::user()->id,
+                'raw_biteship_payload' => $responseData['data'],
+                'items' => $data['items'],
+                'status' => $responseData['data']['status'] ?? 'pending',
+                'notes' => $data['notes'] ?? null,
+            ]);
+            
+            return $order;
+        } catch (\Exception $e) {
+            Log::error('Error creating order', [
+                'data' => $data,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-
-        // save to database
-        $order = Order::create([
-            'shipper_name' => $data['sender_name'],
-            'shipper_phone' => $data['sender_phone'],
-            'shipper_address' => $data['sender_address'],
-            'receiver_name' => $data['receiver_name'],
-            'receiver_phone' => $data['receiver_phone'],
-            'receiver_address' => $data['receiver_address'],
-            'user_id' => Auth::user()->id,
-            'raw_biteship_payload' => $responseData['data'],
-            'items' => $data['items'],
-            'status' => $responseData['data']['status'],
-            'notes' => $data['notes'],
-        ]);
-        
-        return $order;
     }
 
 

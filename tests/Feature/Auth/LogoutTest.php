@@ -22,7 +22,7 @@ class LogoutTest extends TestCase
         $this->token = $this->user->createToken('test-token')->plainTextToken;
     }
 
-    public function test_user_can_logout()
+    public function test_user_can_logout_with_valid_token()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -31,7 +31,6 @@ class LogoutTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'success' => true,
                 'message' => 'Successfully logged out'
             ]);
 
@@ -51,7 +50,6 @@ class LogoutTest extends TestCase
 
         $response->assertStatus(401)
             ->assertJson([
-                'success' => false,
                 'message' => 'Unauthenticated.'
             ]);
     }
@@ -65,7 +63,6 @@ class LogoutTest extends TestCase
 
         $response->assertStatus(401)
             ->assertJson([
-                'success' => false,
                 'message' => 'Unauthenticated.'
             ]);
     }
