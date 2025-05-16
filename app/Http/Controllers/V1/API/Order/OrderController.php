@@ -192,7 +192,44 @@ class OrderController extends Controller
 
     public function webhook(Request $request)
     {
-        Log::info('Webhook received', ['request' => $request->all()]);
-        return response()->json(['message' => 'Webhook received']);
+        try {
+            Log::info('Webhook received', ['request' => $request->all()]);
+
+            // Find the order
+            $order = Order::whereRaw('JSON_CONTAINS(raw_biteship_payload, \'{"id":' . $request->id . '}\')')->first();
+            
+            if (!$order) {
+                Log::error('Order not found', ['order_id' => $request->id]);
+                return response()->json(['message' => 'Order not found'], 404);
+            }
+
+            // Update order status and store raw payload
+            $order->update([
+                'status' => $request->status,
+                'raw_biteship_payload' => $request->all(),
+                'status_updated_at' => now(),
+            ]);
+
+            Log::info('Order status updated successfully', [
+                'order_id' => $order->order_number,
+                'new_status' => $request->status
+            ]);
+
+            return response()->json([
+                'message' => 'Order status updated successfully',
+                'order_id' => $order->order_number,
+                'status' => $request->status
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error processing webhook: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Error processing webhook',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

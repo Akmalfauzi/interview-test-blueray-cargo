@@ -50,7 +50,7 @@ class LoginRequest extends FormRequest
         return new LoginRequestDTO(
             email: $this->input('email'),
             password: $this->input('password'),
-            remember: $this->input('remember')
+            remember: (bool) $this->input('remember', false)
         );
     }
 } 

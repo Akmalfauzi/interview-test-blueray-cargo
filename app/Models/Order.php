@@ -39,4 +39,9 @@ class Order extends Model
         'items' => 'array',
         'raw_biteship_payload' => 'array',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 } 

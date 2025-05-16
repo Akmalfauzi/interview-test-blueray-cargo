@@ -32,17 +32,15 @@
                         <div class="row">
                             <div class="col-8">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="rememberMe" />
-                                    <label class="form-check-label" for="rememberMe">Remember Me</label>
+                                    <input type="checkbox" class="form-check-input" name="remember" id="remember">
+                                    <label class="form-check-label" for="remember">Remember Me</label>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary" id="loginButton">
-                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-                                        Sign In
-                                    </button>
-                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" id="loginButton">
+                                    <span class="spinner-border spinner-border-sm d-none" id="loginSpinner" role="status" aria-hidden="true"></span>
+                                    Sign In
+                                </button>
                             </div>
                         </div>
                     </form>
