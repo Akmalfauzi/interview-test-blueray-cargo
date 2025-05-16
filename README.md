@@ -93,21 +93,27 @@ The application will be available at `http://localhost:8000`
   {
     "name": "string",
     "email": "string",
-    "password": "string"
+    "password": "string",
+    "password_confirmation": "string"
   }
   ```
 - **Response**:
   ```json
   {
+    "success": true,
     "message": "Registration successful",
-    "user": {
-      "id": "integer",
-      "name": "string",
-      "email": "string",
-      "created_at": "datetime",
-      "updated_at": "datetime"
-    },
-    "token": "string"
+    "data": {
+      "message": "Registration successful",
+      "user": {
+        "name": "User Testing",
+        "email": "usertesting@mail.com",
+        "updated_at": "2025-05-16T06:40:34.000000Z",
+        "created_at": "2025-05-16T06:40:34.000000Z",
+        "id": 4,
+        "profile_photo_url": null
+      },
+      "token": "8|ZbzZz5HeiAHUUXhg3bmiZiluVGtrT76hMtO46gdh02164785"
+    }
   }
   ```
 
@@ -125,11 +131,23 @@ The application will be available at `http://localhost:8000`
 - **Response**:
   ```json
   {
-    "token": "string",
-    "user": {
-      "id": "integer",
-      "name": "string",
-      "email": "string"
+    "success": true,
+    "message": "Login successful",
+    "data": {
+      "message": "Login successful",
+      "user": {
+        "id": 1,
+        "name": "Admin",
+        "email": "admin@example.com",
+        "email_verified_at": "2025-05-16T03:06:46.000000Z",
+        "created_at": "2025-05-16T03:06:46.000000Z",
+        "updated_at": "2025-05-16T03:06:46.000000Z",
+        "phone": null,
+        "address": null,
+        "profile_photo_path": null,
+        "profile_photo_url": null
+      },
+      "token": "7|13GvxjEHWFSaA5n8PElT0C034da0mSZHjjgHZG9D5092ac03"
     }
   }
   ```
@@ -143,7 +161,11 @@ The application will be available at `http://localhost:8000`
 - **Response**:
   ```json
   {
-    "message": "Successfully logged out"
+    "success": true,
+    "message": "Successfully logged out",
+    "data": {
+      "message": "Successfully logged out"
+    }
   }
   ```
 
