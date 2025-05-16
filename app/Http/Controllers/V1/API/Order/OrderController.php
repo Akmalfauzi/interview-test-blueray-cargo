@@ -199,7 +199,7 @@ class OrderController extends Controller
             Log::info('Order ID', ['order_id' => $request->order_id]);
 
             // Find the order
-            $order = Order::where('raw_biteship_payload->id', $request->order_id)->first();
+            $order = Order::whereJsonContains('raw_biteship_payload->id', $request->order_id)->first();
             
             if (!$order) {
                 Log::error('Order not found', ['order_id' => $request->id]);
