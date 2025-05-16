@@ -24,6 +24,7 @@ use App\Http\Controllers\V1\Role\RoleController;
 use App\Http\Controllers\V1\Tracking\TrackingController;
 use App\Http\Controllers\V1\Tracking\TrackingHistoryController;
 use App\Http\Controllers\V1\User\UserController;    
+use App\Http\Controllers\V1\Profile\ProfileController;
 
 // Home
 Route::get('/', function () {
@@ -69,6 +70,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Role
     Route::prefix('roles')->as('roles.')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('index');
+    });
+
+    // Profile
+    Route::prefix('profile')->as('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::post('/', [ProfileController::class, 'update'])->name('update');
     });
 });
 
