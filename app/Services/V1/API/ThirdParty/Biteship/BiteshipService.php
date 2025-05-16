@@ -172,6 +172,25 @@ class BiteshipService
             );
         }
     }
-    
 
+    public function getTracking(string $trackingId)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+            ])->get($this->apiUrl . '/v1/trackings/' . $trackingId);
+
+            return response()->json([
+                'success' => $response->successful(),
+                'message' => $response->successful() ? 'Data tracking berhasil diambil' : 'Gagal mengambil data tracking',
+                'data' => $response->json()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting tracking from Biteship: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data tracking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

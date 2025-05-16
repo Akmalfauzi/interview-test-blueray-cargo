@@ -11,6 +11,7 @@ use App\Http\Controllers\V1\API\Role\RoleController as APIRoleController;
 use App\Http\Controllers\V1\API\RolePermission\RolePermissionController;
 use App\Http\Controllers\V1\API\User\UserController as APIUserController;
 use App\Http\Controllers\V1\API\Order\OrderController as APIOrderController;
+use App\Http\Controllers\V1\API\Tracking\TrackingController as APITrackingController;
 
 // Backend
 use App\Http\Controllers\V1\Dashboard\DashboardController;
@@ -107,6 +108,18 @@ Route::prefix('api/v1')->as('api.v1.')->group(function () {
             Route::get('/{order}', [APIOrderController::class, 'show'])->name('show');
             Route::put('/{order}', [APIOrderController::class, 'update'])->name('update');
             Route::delete('/{order}', [APIOrderController::class, 'destroy'])->name('destroy');
+        });
+
+        // Tracking
+        Route::prefix('tracking')->as('tracking.')->group(function () {
+            // Tracking History
+            Route::prefix('history')->as('history.')->group(function () {
+                Route::get('/', [APITrackingController::class, 'history'])->name('index');
+                Route::get('/{tracking}', [APITrackingController::class, 'show'])->name('show');
+            });
+
+            // Tracking
+            Route::get('/{number}', [APITrackingController::class, 'track'])->name('track');
         });
 
         // Roles

@@ -260,6 +260,7 @@ export default class OrderManagement {
 
             // Courier Information
             document.getElementById('detailCourier').textContent = order.raw_biteship_payload.courier.company.toUpperCase();
+            document.getElementById('detailTrackingId').textContent = order.raw_biteship_payload.courier.tracking_id;
             document.getElementById('detailTrackingNumber').textContent = order.raw_biteship_payload.courier.waybill_id;
             document.getElementById('detailTrackingLink').href = order.raw_biteship_payload.courier.link;
             document.getElementById('detailEstimatedDelivery').textContent = this.formatDate(order.raw_biteship_payload.delivery.datetime);
@@ -274,24 +275,26 @@ export default class OrderManagement {
             document.getElementById('detailReceiverPhone').textContent = order.receiver_phone;
             document.getElementById('detailReceiverAddress').textContent = order.receiver_address;
 
-            // Populate items table
-            const itemsTable = document.getElementById('detailItemsTable').querySelector('tbody');
-            itemsTable.innerHTML = order.items.map(item => `
-                <tr>
+            // Items
+            const itemsTable = document.getElementById('detailItemsTable').getElementsByTagName('tbody')[0];
+            itemsTable.innerHTML = '';
+            order.items.forEach(item => {
+                const row = itemsTable.insertRow();
+                row.innerHTML = `
                     <td>${item.name}</td>
                     <td>${item.quantity}</td>
                     <td>${item.weight} kg</td>
                     <td>${this.formatCurrency(item.price)}</td>
                     <td>${this.formatCurrency(item.price * item.quantity)}</td>
-                </tr>
-            `).join('');
+                `;
+            });
 
+            // Notes
             document.getElementById('detailNotes').textContent = order.notes || '-';
 
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
             modal.show();
-
         } catch (error) {
             console.error('Error loading order detail:', error);
             window.Toast.fire({

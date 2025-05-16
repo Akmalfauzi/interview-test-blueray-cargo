@@ -37,8 +37,26 @@
                                 <td id="detailCourier">-</td>
                             </tr>
                             <tr>
+                                <td>Tracking ID</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span id="detailTrackingId" class="me-2">-</span>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="copyTrackingId()">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>No. Resi</td>
-                                <td id="detailTrackingNumber">-</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span id="detailTrackingNumber" class="me-2">-</span>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="copyTrackingNumber()">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Link Tracking</td>
@@ -127,4 +145,70 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+@push('scripts')
+<script>
+function copyTrackingId() {
+    const trackingId = document.getElementById('detailTrackingId').textContent;
+    if (trackingId && trackingId !== '-') {
+        navigator.clipboard.writeText(trackingId).then(() => {
+            // Show success message with SweetAlert2
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Tracking ID berhasil disalin',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: 'Gagal menyalin Tracking ID',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        });
+    }
+}
+
+function copyTrackingNumber() {
+    const trackingNumber = document.getElementById('detailTrackingNumber').textContent;
+    if (trackingNumber && trackingNumber !== '-') {
+        navigator.clipboard.writeText(trackingNumber).then(() => {
+            // Show success message with SweetAlert2
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Nomor Resi berhasil disalin',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: 'Gagal menyalin Nomor Resi',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        });
+    }
+}
+</script>
+@endpush 
