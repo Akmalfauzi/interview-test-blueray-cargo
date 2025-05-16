@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'api/v1/webhook/biteship',
+            'api/*'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
