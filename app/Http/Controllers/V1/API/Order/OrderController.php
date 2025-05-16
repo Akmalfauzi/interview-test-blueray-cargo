@@ -60,6 +60,11 @@ class OrderController extends Controller
                 });
             }
 
+            // cek apakah user adalah admin
+            if (!auth()->user()->hasRole('admin')) {
+                $query->where('user_id', auth()->user()->id);
+            }
+
             // Ambil data dengan pagination
             $orders = $query->paginate($perPage, ['*'], 'page', $page);
 
