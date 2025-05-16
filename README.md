@@ -12,8 +12,8 @@ This is a Laravel-based API project that implements user authentication and role
 
 1. Clone the repository:
 ```bash
-git clone [https://github.com/Akmalfauzi/interview-test-blueray-cargo]
-cd [interview-test-blueray-cargo]
+git clone https://github.com/Akmalfauzi/interview-test-blueray-cargo
+cd interview-test-blueray-cargo
 ```
 
 2. Install PHP dependencies:

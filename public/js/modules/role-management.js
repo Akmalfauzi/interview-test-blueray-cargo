@@ -184,6 +184,8 @@ const RoleManagement = {
 
         roles.forEach((role, index) => {
             const itemNumber = (this.state.currentPage - 1) * this.state.itemsPerPage + index + 1;
+            const isSystemRole = role.id <= 2; // Check if role is system role (ID 1 or 2)
+            
             html += `
                 <tr>
                     <td>${itemNumber}.</td>
@@ -199,10 +201,12 @@ const RoleManagement = {
                                     data-role-id="${role.id}" data-role-name="${this.escapeHtml(role.name)}">
                                 <i class="bi bi-shield-lock"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-danger deleteRoleButton" title="Hapus"
-                                    data-role-id="${role.id}" data-role-name="${this.escapeHtml(role.name)}">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            ${!isSystemRole ? `
+                                <button type="button" class="btn btn-sm btn-danger deleteRoleButton" title="Hapus"
+                                        data-role-id="${role.id}" data-role-name="${this.escapeHtml(role.name)}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            ` : ''}
                         </div>
                     </td>
                 </tr>`;
